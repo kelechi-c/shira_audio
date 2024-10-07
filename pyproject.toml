@@ -1,0 +1,7 @@
+[project]
+name = "wavsearch"
+version = "0.1.0"
+description = "audio search/retrieval library"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
