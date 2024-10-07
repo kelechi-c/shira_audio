@@ -1,9 +1,36 @@
 import librosa, pydub, os
 import torch
 import numpy as np 
+from functools import wraps
 
 sample_rate = 22400
 max_duration = 10
+
+# 'latency' wrapper for reporting time spent in executing a function
+def latency(func: function):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"latency => {func.__name__}: {end_time - start_time:.4f} seconds")
+        return result
+
+    return wrapper
+
+
+# crawl all the local audio files and retrun a single list
+@latency
+def get_all_images(root_dir: os.path, extensions: list =("*.wav", "*.mp3")) -> list:
+    audio_files = []
+
+    for ext in extensions:
+        for directory, _, _ in os.walk(root_dir):
+            audio_files.append(glob.glob(os.path.join(directory, ext)))
+
+    print(f"found {len(audio_files)} images in {root_dir}")
+
+    return audio_files
 
 
 def read_audio(audio_file: str) -> torch.Tensor: #read audio file into torch tensor from file path
@@ -23,13 +50,13 @@ def mp3_to_wav(file: str) -> str:
 
     return outpath
 
-# trimmming audio to a fixed length for all tasks
+# trimming audio to a fixed length for all tasks
 def trimpad_audio(audio: np.ndarray) -> np.ndarray:
-    samples = int(sample_rate * max_duration)
+    samples = int(sample_rate * max_duration) # calculate total number of samples
 
+    # cut off excess samples if beyong length, or pad to req. length
     if len(audio) > samples:
         audio = audio[:samples]
-
     else:
         pad_width = samples - len(audio)
         audio = np.pad(audio, (0, pad_width), mode="reflect")
