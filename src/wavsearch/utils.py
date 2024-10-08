@@ -1,13 +1,14 @@
-import librosa, pydub, os
-import torch
+from typing import Literal, Union
+import librosa, pydub, os, time, glob
 import numpy as np 
+from IPython.display import Audio as idp_audio
 from functools import wraps
 
 sample_rate = 22400
 max_duration = 10
 
 # 'latency' wrapper for reporting time spent in executing a function
-def latency(func: function):
+def latency(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.time()
@@ -21,7 +22,7 @@ def latency(func: function):
 
 # crawl all the local audio files and retrun a single list
 @latency
-def get_all_images(root_dir: os.path, extensions: list =("*.wav", "*.mp3")) -> list:
+def audiofile_crawler(root_dir: str, extensions: list =["*.wav", "*.mp3"]) -> list:
     audio_files = []
 
     for ext in extensions:
@@ -33,13 +34,14 @@ def get_all_images(root_dir: os.path, extensions: list =("*.wav", "*.mp3")) -> l
     return audio_files
 
 
-def read_audio(audio_file: str) -> torch.Tensor: #read audio file into torch tensor from file path
+def read_audio(audio_file: str) -> np.ndarray: #read audio file into numpy array/torch tensor from file path
     if not audio_file.endswith(".wav"):
         audio_file = mp3_to_wav(audio_file)
-    waveform, _ = librosa.load(audio_file, sample_rate)
+    waveform, _ = librosa.load(audio_file, sr=sample_rate)
     waveform = trimpad_audio(waveform)
 
-    return torch.as_tensor(waveform)
+    return waveform
+
 
 # converting mp3 files to .wav for loading
 def mp3_to_wav(file: str) -> str:
@@ -62,3 +64,11 @@ def trimpad_audio(audio: np.ndarray) -> np.ndarray:
         audio = np.pad(audio, (0, pad_width), mode="reflect")
 
     return audio
+
+# displays platable audio widget, for notebooks 
+def display_audio(audio: Union[np.ndarray, str], srate: int = 22400):
+    if isinstance(audio, np.ndarray):
+        idp_audio(data=audio, rate=srate)
+        
+    else:
+        idp_audio(filename=audio, rate=srate)
