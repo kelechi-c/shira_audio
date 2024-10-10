@@ -1,11 +1,11 @@
-from typing import Literal, Union
+from typing import Union
 import librosa, pydub, os, time, glob
 import numpy as np 
 from IPython.display import Audio as idp_audio
 from functools import wraps
 
-sample_rate = 22400
-max_duration = 10
+sample_rate = 48000 # sample rate use dto train laion music_CLAP checkpoint
+max_duration = 20 # trim all loaded audio to this length for resources
 
 # 'latency' wrapper for reporting time spent in executing a function
 def latency(func):
@@ -69,6 +69,5 @@ def trimpad_audio(audio: np.ndarray) -> np.ndarray:
 def display_audio(audio: Union[np.ndarray, str], srate: int = 22400):
     if isinstance(audio, np.ndarray):
         idp_audio(data=audio, rate=srate)
-        
     else:
         idp_audio(filename=audio, rate=srate)

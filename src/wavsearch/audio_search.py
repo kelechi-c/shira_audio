@@ -16,12 +16,12 @@ class AudioSearch:
 # indexes the audio files for text/audio-based retrieval
 class AudioEmbedding:
     def __init__(
-        self, 
-        data_path: str, 
-        embed_model_id: str = "laion/larger_clap_music_and_speech",
-        dataset_type: Literal['huggingface', 'local_folder'] = 'local_folder', 
-        device: Literal['cuda', 'cpu'] = 'cpu',
-        save_model: bool = False 
+        self,
+        data_path: str = '~', # load from home directory if not specfied
+        embed_model_id: str = "laion/larger_clap_music_and_speech", # clap model id, use LAION checkpoint if not specified
+        dataset_type: Literal['huggingface', 'local_folder'] = 'local_folder', # load from directory or remote repo
+        device: Literal['cuda', 'cpu'] = 'cpu', # for GPU(faster) or CPU usage
+        save_model: bool = True # whether to save the model
     ):
         self.data_path = data_path
         self.dataset_type = dataset_type
@@ -35,10 +35,11 @@ class AudioEmbedding:
         self.embed_model = ClapModel.from_pretrained(self.model_id)
         print(f"loaded CLAP model/processor _{self.model_id}")
 
+        # load dataset from remote repo of local audio files
         if dataset_type == 'huggingface':
             self.audio_dataset = load_dataset(data_path, split='train', trust_remote_code=True)
         else:
-            audiofiles = audiofile_crawler(data_path)
+            audiofiles = audiofile_crawler(data_path) # get all audio files under the directory
             self.audio_dataset = Dataset.from_dict({'audio': audiofiles})
             
         if save_model:
@@ -52,6 +53,7 @@ class AudioEmbedding:
     def index_files(self):
         assert self.device in ["cuda", "cpu",], "Wrong device id, must either be 'cuda' or 'cpu'"
         
+        # encode/embed arrays for search
         embedded_data = self.audio_dataset.map(self._embed_audio_batch, batch_size=10, batched=True) # type: ignore
         print(f'created faiss vector embeddings for {self.data_path}')
         
