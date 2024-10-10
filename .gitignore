@@ -1,2 +1,5 @@
 .env
 .vscode
+.venv
+uv.lock
+src/wavsearch.egg-info
