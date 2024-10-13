@@ -58,7 +58,27 @@ class AudioSearch:
 
         return retrieved_audio, scores
     
+    def audio_search(
+        self,
+        input_audio: Union[str, os.PathLike],
+        embedded_data,
+        k_count: int=2,
+        device: str = 'cpu'
+    ):
+        if not isinstance(input_audio, np.ndarray):  
+            input_audio = read_audio(input_audio)  # type: ignore # loads audio file from wav to ndarray
 
+        audio_values = self.processor(audios=input_audio, return_tensors="pt", sampling_rate=sample_rate)["input_features"] # type: ignore
+        audio_values = audio_values.to(device)
+        
+        wav_embed = self.clap_model.get_audio_features(audio_values)[0] # type: ignore
+        wav_embed = wav_embed.detach().cpu().numpy()
+
+        scores, retrieved_audio = embedded_data.get_nearest_examples(
+            "audio_embeddings", wav_embed, k=k_count
+        )
+        
+        return retrieved_audio, scores
 
 
 # indexes the audio files for text/audio-based retrieval
