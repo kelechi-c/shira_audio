@@ -11,7 +11,6 @@ LOCAL_PROCESSOR_PATH = 'clap_processor'
 LOCAL_DATA_EMBED = 'audio_embeddings'
 
 
-
 class AudioSearch:
 
     def __init__(
@@ -129,3 +128,22 @@ class AudioEmbedding:
         return batch
 
 
+def load_models(local_model_path, local_processor_path, model_id):
+    clap_model = None
+    processor = None
+
+    is_local = os.path.isdir(
+        local_model_path
+    )  # check if previously saved models are available
+
+    if is_local:  # load from locally saved weights
+        clap_model = ClapModel.from_pretrained(local_model_path)
+        processor = ClapProcessor.from_pretrained(local_processor_path)
+
+    else:  # download fresh weights from huggingface
+        clap_model = ClapModel.from_pretrained(model_id)
+        processor = ClapProcessor.from_pretrained(model_id)
+
+        # then save locally for next time
+
+    return clap_model, processor

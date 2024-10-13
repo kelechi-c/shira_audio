@@ -4,6 +4,7 @@ import numpy as np
 from IPython.display import Audio as idp_audio
 from functools import wraps
 
+
 sample_rate = 48000 # sample rate use dto train laion music_CLAP checkpoint
 max_duration = 20 # trim all loaded audio to this length for resources
 
@@ -71,24 +72,3 @@ def display_audio(audio: Union[np.ndarray, str], srate: int = 22400):
         idp_audio(data=audio, rate=srate)
     else:
         idp_audio(filename=audio, rate=srate)
-
-
-def load_models(local_model_path, local_processor_path, model_id):
-    clap_model = None
-    processor = None
-
-    is_local = os.path.isdir(
-        local_model_path
-    )  # check if previously saved models are available
-
-    if is_local:  # load from locally saved weights
-        clap_model = ClapModel.from_pretrained(local_model_path)
-        processor = ClapProcessor.from_pretrained(local_processor_path)
-
-    else:  # download fresh weights from huggingface
-        clap_model = ClapModel.from_pretrained(model_id)
-        processor = ClapProcessor.from_pretrained(model_id)
-
-        # then save locally for next time
-
-    return clap_model, processor
