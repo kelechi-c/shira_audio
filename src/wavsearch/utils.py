@@ -34,9 +34,9 @@ def audiofile_crawler(root_dir: str, extensions: list =["*.wav", "*.mp3"]) -> li
     return audio_files
 
 
-def read_audio(audio_file: str) -> np.ndarray: #read audio file into numpy array/torch tensor from file path
-    if not audio_file.endswith(".wav"):
-        audio_file = mp3_to_wav(audio_file)
+def read_audio(audio_file: Union[str, os.PathLike]) -> np.ndarray: #read audio file into numpy array/torch tensor from file path
+    if not audio_file.endswith(".wav"): # type: ignore
+        audio_file = mp3_to_wav(audio_file) # type: ignore
     waveform, _ = librosa.load(audio_file, sr=sample_rate)
     waveform = trimpad_audio(waveform)
 
@@ -65,9 +65,30 @@ def trimpad_audio(audio: np.ndarray) -> np.ndarray:
 
     return audio
 
-# displays platable audio widget, for notebooks 
+# displays platable audio widget, for notebooks
 def display_audio(audio: Union[np.ndarray, str], srate: int = 22400):
     if isinstance(audio, np.ndarray):
         idp_audio(data=audio, rate=srate)
     else:
         idp_audio(filename=audio, rate=srate)
+
+
+def load_models(local_model_path, local_processor_path, model_id):
+    clap_model = None
+    processor = None
+
+    is_local = os.path.isdir(
+        local_model_path
+    )  # check if previously saved models are available
+
+    if is_local:  # load from locally saved weights
+        clap_model = ClapModel.from_pretrained(local_model_path)
+        processor = ClapProcessor.from_pretrained(local_processor_path)
+
+    else:  # download fresh weights from huggingface
+        clap_model = ClapModel.from_pretrained(model_id)
+        processor = ClapProcessor.from_pretrained(model_id)
+
+        # then save locally for next time
+
+    return clap_model, processor
