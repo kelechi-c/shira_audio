@@ -12,6 +12,53 @@ LOCAL_DATA_EMBED = 'audio_embeddings'
 
 
 
+class AudioSearch:
+
+    def __init__(
+        self,
+        model_id: str = "laion/larger_clap_music_and_speech", 
+        local_model_path: str = LOCAL_MODEL_PATH,
+        local_processor_path: str = LOCAL_PROCESSOR_PATH,
+        embedding_path: str = LOCAL_DATA_EMBED,
+        device: str = 'cpu'
+    ):
+        self.model_id = model_id
+        self.local_model_path = local_model_path
+        self.local_processor_path = local_processor_path
+        self.embeds_path = embedding_path
+        self.device = device
+        self.processor = None
+        self.clap_model = None
+
+        # load models for semantic search retrieval
+        self.clap_model, self.processor = load_models(local_model_path, local_processor_path, model_id)
+        print('loaded rerieval model')
+        
+        # then save locally for next time
+        self.clap_model.save_pretrained(self.local_model_path)
+        self.processor.save_pretrained(self.local_processor_path) # type: ignore
+
+    @latency
+    def text_search(
+        self, 
+        text_query: str, 
+        embedded_data: Dataset,
+        k_count: int = 4, 
+        device: str = 'cpu'
+    ):
+
+        # preprocess and tokenize text
+        encoded_text = self.processor(text=text_query, return_tensors="pt")["input_features"]  # type: ignore
+        encoded_text = encoded_text.to(device) # type: ignore
+
+        # get aligned text embeddings for query
+        text_embed = self.clap_model.get_text_features(encoded_text)[0] # type: ignore
+        text_embed = text_embed.detach().cpu().numpy()
+
+        scores, retrieved_audio = embedded_data.get_nearest_examples("audio_embeddings", text_embed, k=k_count)
+
+        return retrieved_audio, scores
+    
 
 
 
