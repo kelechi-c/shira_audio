@@ -1,16 +1,16 @@
-## wavsearch 🔖🎧
+## shira 🔖🎧
 
 ### A simple audio search/retrieval library. (wip)
 
-This is the audio version of [ripple_net](https://github.com/kelechi-c/ripple_net).
+This is the audio version of [ripple](https://github.com/kelechi-c/ripple_net).
 It's meant to be an **_neural_ encoded** version of [Shazam](https://www.shazam.com/), but might just be for small scale/local usage.
 
 #### Methodology
-It's basically a **semantic search library for audio**.\
+It's basically a **semantic search library for audio**.
 
 The local audio data/files are indexed and embeddings are generated(with CLAP), 
 then a **FAISS** vector index is created.\
-The files are retrieved based on **cosine similarity** between embeddings.\
+The files are retrieved based on **cosine similarity** between embeddings.
 
 This process makes use of contrastively pretrained audio-language model, **CLAP**(like **OpenAI CLIP** for audio), 
 specifically LAION's **[laion/larger_clap_music_and_speech](https://huggingface.co/laion/larger_clap_music_and_speech)** checkpoint/model

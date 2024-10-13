@@ -2,4 +2,4 @@
 .vscode
 .venv
 uv.lock
-src/wavsearch.egg-info
+src/shira.egg-info
