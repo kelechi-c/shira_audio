@@ -1,7 +1,6 @@
 from typing import Union
 import librosa, pydub, os, time, glob
 import numpy as np 
-from IPython.display import Audio as idp_audio
 from functools import wraps
 
 
@@ -66,9 +65,9 @@ def trimpad_audio(audio: np.ndarray) -> np.ndarray:
 
     return audio
 
-# displays platable audio widget, for notebooks
-def display_audio(audio: Union[np.ndarray, str], srate: int = 22400):
-    if isinstance(audio, np.ndarray):
-        idp_audio(data=audio, rate=srate)
-    else:
-        idp_audio(filename=audio, rate=srate)
+# # displays platable audio widget, for notebooks
+# def display_audio(audio: Union[np.ndarray, str], srate: int = 22400):
+#     if isinstance(audio, np.ndarray):
+#         idp_audio(data=audio, rate=srate)
+#     else:
+#         idp_audio(filename=audio, rate=srate)

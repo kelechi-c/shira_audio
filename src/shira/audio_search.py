@@ -6,8 +6,8 @@ from datasets import load_dataset, Dataset
 from transformers import ClapModel, ClapProcessor
 
 # local path variables
-LOCAL_MODEL_PATH = 'clap_model' 
-LOCAL_PROCESSOR_PATH = 'clap_processor'
+LOCAL_MODEL_PATH = '~/clap_model' 
+LOCAL_PROCESSOR_PATH = '~/clap_processor'
 LOCAL_DATA_EMBED = 'audio_embeddings'
 
 
@@ -57,19 +57,20 @@ class AudioSearch:
         scores, retrieved_audio = embedded_data.get_nearest_examples("audio_embeddings", text_embed, k=k_count)
 
         return retrieved_audio, scores
-    
+   
+    @latency 
     def audio_search(
         self,
         input_audio: Union[str, os.PathLike],
         embedded_data,
-        k_count: int=2,
+        k_count: int = 2,
         device: str = 'cpu'
     ):
         if not isinstance(input_audio, np.ndarray):  
             input_audio = read_audio(input_audio)  # type: ignore # loads audio file from wav to ndarray
 
         audio_values = self.processor(audios=input_audio, return_tensors="pt", sampling_rate=sample_rate)["input_features"] # type: ignore
-        audio_values = audio_values.to(device)
+        audio_values = audio_values.to(device) # type: ignore
         
         wav_embed = self.clap_model.get_audio_features(audio_values)[0] # type: ignore
         wav_embed = wav_embed.detach().cpu().numpy()
@@ -89,12 +90,14 @@ class AudioEmbedding:
         embed_model_id: str = "laion/larger_clap_music_and_speech", # clap model id, use LAION checkpoint if not specified
         dataset_type: Literal['huggingface', 'local_folder'] = 'local_folder', # load from directory or remote repo
         device: Literal['cuda', 'cpu'] = 'cpu', # for GPU(faster) or CPU usage
-        save_model: bool = True # whether to save the model
+        save_model: bool = True, # whether to save the model
+        audio_embed_path: str = LOCAL_DATA_EMBED
     ):
         self.data_path = data_path
         self.dataset_type = dataset_type
         self.model_id = embed_model_id
         self.model_save_path = LOCAL_MODEL_PATH
+        self.audio_embed_path = audio_embed_path
         self.device = device
         self.audio_dataset = None
         self.processor = None
@@ -148,7 +151,11 @@ class AudioEmbedding:
         return batch
 
 
-def load_models(local_model_path, local_processor_path, model_id):
+def load_models(
+    local_model_path: Union[str, os.PathLike],
+    local_processor_path: Union[str, os.PathLike],
+    model_id: str,
+):
     clap_model = None
     processor = None
 
