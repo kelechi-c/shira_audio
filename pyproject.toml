@@ -1,5 +1,5 @@
 [project]
-name = "shira"
+name = "shira_audio"
 version = "0.1.0"
 description = "audio search/retrieval library"
 authors = [{ name = "Chibuzo Kelechi", email = "kelechichibuzo7@gmail.com" }]
