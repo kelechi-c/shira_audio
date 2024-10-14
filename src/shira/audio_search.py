@@ -172,5 +172,7 @@ def load_models(
         processor = ClapProcessor.from_pretrained(model_id)
 
         # then save locally for next time
+        clap_model.save_pretrained(local_model_path)
+        processor.save_pretrained(local_processor_path) # type: ignore
 
     return clap_model, processor
