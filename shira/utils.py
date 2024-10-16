@@ -1,5 +1,5 @@
 from typing import Union
-import librosa, pydub, os, time, glob
+import librosa, os, time, glob
 import numpy as np 
 from functools import wraps
 
@@ -22,35 +22,36 @@ def latency(func):
 
 # crawl all the local audio files and retrun a single list
 @latency
-def audiofile_crawler(root_dir: str, extensions: list =["*.wav", "*.mp3"]) -> list:
+def audiofile_crawler(root_dir: str, extensions: list =["*.wav", "*.mp3"]) -> tuple:
     audio_files = []
 
     for ext in extensions:
         for directory, _, _ in os.walk(root_dir):
             audio_files.append(glob.glob(os.path.join(directory, ext)))
 
-    print(f"found {len(audio_files)} images in {root_dir}")
+    file_count = len(audio_files)
+    print(f"found {len(audio_files)} audio files under {root_dir}")
 
-    return audio_files
+    return audio_files, file_count
 
 
 def read_audio(audio_file: Union[str, os.PathLike]) -> np.ndarray: #read audio file into numpy array/torch tensor from file path
-    if not audio_file.endswith(".wav"): # type: ignore
-        audio_file = mp3_to_wav(audio_file) # type: ignore
+    # if not audio_file.endswith(".wav"): # type: ignore
+    #     audio_file = mp3_to_wav(audio_file) # type: ignore
     waveform, _ = librosa.load(audio_file, sr=sample_rate)
     waveform = trimpad_audio(waveform)
 
     return waveform
 
 
-# converting mp3 files to .wav for loading
-def mp3_to_wav(file: str) -> str:
-    outpath = os.path.basename(file).split(".")[0]
-    outpath = f"{outpath}.wav" # full fileame derived from original
-    sound = pydub.AudioSegment.from_mp3(file)
-    sound.export(outpath)
+# # converting mp3 files to .wav for loading
+# def mp3_to_wav(file: str) -> str:
+#     outpath = os.path.basename(file).split(".")[0]
+#     outpath = f"{outpath}.wav" # full fileame derived from original
+#     sound = pydub.AudioSegment.from_mp3(file)
+#     sound.export(outpath)
 
-    return outpath
+#     return outpath
 
 # trimming audio to a fixed length for all tasks
 def trimpad_audio(audio: np.ndarray) -> np.ndarray:
@@ -64,10 +65,3 @@ def trimpad_audio(audio: np.ndarray) -> np.ndarray:
         audio = np.pad(audio, (0, pad_width), mode="reflect")
 
     return audio
-
-# # displays platable audio widget, for notebooks
-# def display_audio(audio: Union[np.ndarray, str], srate: int = 22400):
-#     if isinstance(audio, np.ndarray):
-#         idp_audio(data=audio, rate=srate)
-#     else:
-#         idp_audio(filename=audio, rate=srate)
