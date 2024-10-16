@@ -114,7 +114,7 @@ class AudioEmbedding:
         assert self.device in ["cuda", "cpu",], "Wrong device id, must either be 'cuda' or 'cpu'"
 
         # encode/embed arrays for search
-        embedded_data: Dataset = self.audio_dataset.map(self._embed_audio_batch, batch_size=10, batched=True) # type: ignore
+        embedded_data: Dataset = self.audio_dataset.map(self._embed_audio_batch)#, batch_size=10, batched=True) # type: ignore
         print(f'created faiss vector embeddings for {self.data_path}')
         embedded_data.save_to_disk(self.data_path)
 
