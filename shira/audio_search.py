@@ -43,7 +43,7 @@ class AudioSearch:
     ):
 
         # preprocess and tokenize text
-        encoded_text = self.processor(text=text_query, return_tensors="pt")["input_features"]  # type: ignore
+        encoded_text = self.processor(text=text_query, return_tensors="pt")["input_ids"]  # type: ignore
         encoded_text = encoded_text.to(device) # type: ignore
 
         # get aligned text embeddings for query
@@ -65,7 +65,7 @@ class AudioSearch:
         if not isinstance(input_audio, np.ndarray):  
             input_audio = read_audio(input_audio)  # type: ignore # loads audio file from wav to ndarray
 
-        audio_values = self.processor(audios=input_audio, return_tensors="pt", sampling_rate=sample_rate)["input_features"] # type: ignore
+        audio_values = self.processor(audios=input_audio, return_tensors="pt", sampling_rate=sample_rate)["audio_features"] # type: ignore
         audio_values = audio_values.to(device) # type: ignore
         
         wav_embed = self.clap_model.get_audio_features(audio_values)[0] # type: ignore
