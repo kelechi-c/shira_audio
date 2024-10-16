@@ -14,9 +14,9 @@ def check_files(dir):
 @click.command()
 @click.option("-t", "--textquery", required=True, type=str, help="text description for audio retrieval")
 @click.option("-d", "--dir", default=lambda: Path.home(), type=str, help='target directory')
-def text_search(textquery: str):
+def text_search(textquery: str, dir):
     
-    embedder = AudioEmbedding(data_path='.') # init embedder class
+    embedder = AudioEmbedding(data_path=dir) # init embedder class
     
     audio_data_embeds = embedder.index_files() # create embeddings and index audio files
     neural_search = AudioSearch() # init semantic search class
@@ -25,7 +25,7 @@ def text_search(textquery: str):
     matching_samples, scores = neural_search.text_search(textquery, audio_data_embeds, k_count=5)
 
     top_sample = matching_samples[0]['audio']['path'] # get file path for top sample
-
+    score = scores[0] * 100
     click.echo(f"text query {textquery}")
     click.echo("...........")
-    click.echo(f"search result #1 {top_sample}")
+    click.echo(f"search result #1 {top_sample}, p = {score}%")
