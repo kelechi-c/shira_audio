@@ -1,4 +1,4 @@
-from .utils import read_audio, audiofile_crawler, latency, mp3_to_wav
+from .utils import read_audio, audiofile_crawler, latency
 from .audio_search import AudioEmbedding, AudioSearch, load_models
 
 def echo_shira():

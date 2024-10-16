@@ -1,7 +1,10 @@
 from typing import Union
-import librosa, os, time, glob
-import numpy as np 
+import librosa, os, time
+import numpy as np
 from functools import wraps
+from pathlib import Path
+
+from tqdm import tqdm
 
 
 sample_rate = 48000 # sample rate use dto train laion music_CLAP checkpoint
@@ -22,36 +25,27 @@ def latency(func):
 
 # crawl all the local audio files and retrun a single list
 @latency
-def audiofile_crawler(root_dir: str, extensions: list =["*.wav", "*.mp3"]) -> tuple:
-    audio_files = []
+def audiofile_crawler(directory: Union[str, Path] = Path.home()):
+    audio_extensions = (".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a")
+    # audio_files = []
 
-    for ext in extensions:
-        for directory, _, _ in os.walk(root_dir):
-            audio_files.append(glob.glob(os.path.join(directory, ext)))
+    dir_path = Path(directory)
+    print(dir_path)
 
-    file_count = len(audio_files)
-    print(f"found {len(audio_files)} audio files under {root_dir}")
+    # Use a generator expression to find all files with the given extensions
+    matching_files = [
+        str(file) for ext in tqdm(audio_extensions, ncols=50) for file in dir_path.rglob(f"*{ext}")
+    ]
+    print(f'found {len(matching_files)} audio files in {directory}')
 
-    return audio_files, file_count
+    return matching_files, len(matching_files)
 
 
 def read_audio(audio_file: Union[str, os.PathLike]) -> np.ndarray: #read audio file into numpy array/torch tensor from file path
-    # if not audio_file.endswith(".wav"): # type: ignore
-    #     audio_file = mp3_to_wav(audio_file) # type: ignore
     waveform, _ = librosa.load(audio_file, sr=sample_rate)
     waveform = trimpad_audio(waveform)
 
     return waveform
-
-
-# # converting mp3 files to .wav for loading
-# def mp3_to_wav(file: str) -> str:
-#     outpath = os.path.basename(file).split(".")[0]
-#     outpath = f"{outpath}.wav" # full fileame derived from original
-#     sound = pydub.AudioSegment.from_mp3(file)
-#     sound.export(outpath)
-
-#     return outpath
 
 # trimming audio to a fixed length for all tasks
 def trimpad_audio(audio: np.ndarray) -> np.ndarray:
