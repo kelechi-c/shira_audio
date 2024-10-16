@@ -3,3 +3,4 @@
 .venv
 uv.lock
 src/shira.egg-info
+shira/__pycache__

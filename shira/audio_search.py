@@ -31,11 +31,7 @@ class AudioSearch:
 
         # load models for semantic search retrieval
         self.clap_model, self.processor = load_models(local_model_path, local_processor_path, model_id)
-        print('loaded rerieval model')
-        
-        # then save locally for next time
-        self.clap_model.save_pretrained(self.local_model_path)
-        self.processor.save_pretrained(self.local_processor_path) # type: ignore
+
 
     @latency
     def text_search(
@@ -90,7 +86,6 @@ class AudioEmbedding:
         embed_model_id: str = "laion/larger_clap_music_and_speech", # clap model id, use LAION checkpoint if not specified
         dataset_type: Literal['huggingface', 'local_folder'] = 'local_folder', # load from directory or remote repo
         device: Literal['cuda', 'cpu'] = 'cpu', # for GPU(faster) or CPU usage
-        save_model: bool = True, # whether to save the model
         audio_embed_path: str = LOCAL_DATA_EMBED
     ):
         self.data_path = data_path
@@ -105,22 +100,14 @@ class AudioEmbedding:
 
         # load models for processing/retrieval
         self.embed_model, self.processor = load_models(self.model_save_path, LOCAL_PROCESSOR_PATH, self.model_id)
-        print(f"loaded CLAP model/processor _{self.model_id}")
 
         # load dataset from remote repo of local audio files
         if dataset_type == 'huggingface':
             self.audio_dataset = load_dataset(data_path, split='train', trust_remote_code=True)
         else:
-            audiofiles = audiofile_crawler(data_path) # get all audio files under the directory
+            audiofiles, _ = audiofile_crawler(data_path) # get all audio files under the directory
             self.audio_dataset = Dataset.from_dict({'audio': audiofiles})
             self.audio_dataset.save_to_disk(LOCAL_DATA_EMBED)
-
-        if save_model:
-            # save model locally so you don't have to download 1gb+ weights everytime
-            os.mkdir(self.model_save_path)
-            self.embed_model.save_pretrained(self.model_save_path)
-            self.processor.save_pretrained(self.model_save_path) # type: ignore
-            print(f'model saved at {self.model_save_path}')
 
     @latency
     def index_files(self): # create faiss index for audio files
@@ -166,13 +153,16 @@ def load_models(
     if is_local:  # load from locally saved weights
         clap_model = ClapModel.from_pretrained(local_model_path)
         processor = ClapProcessor.from_pretrained(local_processor_path)
+        print(f"loaded retrieval model from local storage @ {local_model_path}")
 
     else:  # download fresh weights from huggingface
         clap_model = ClapModel.from_pretrained(model_id)
         processor = ClapProcessor.from_pretrained(model_id)
+        print(f'loaded {model_id} weights from huggingface')
 
-        # then save locally for next time
+        # save model locally so you don't have to download 1gb+ weights everytime
         clap_model.save_pretrained(local_model_path)
         processor.save_pretrained(local_processor_path) # type: ignore
+        print(f'saved model @ {local_model_path}')
 
     return clap_model, processor
