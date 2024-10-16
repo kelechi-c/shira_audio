@@ -1,6 +1,6 @@
 [project]
 name = "shira_audio"
-version = "0.1.0"
+version = "0.1.1"
 description = "audio search/retrieval library"
 authors = [{ name = "Chibuzo Kelechi", email = "kelechichibuzo7@gmail.com" }]
 readme = "README.md"
@@ -13,19 +13,20 @@ dependencies = [
     "transformers",
     "faiss-gpu",
     "numpy",
-    "pydub"
+    "click",
+    "tqdm"
 ]
 keywords = [
 	'machine learning',
 	'audio retrieval',
 	'multimodal',
 	'semantic search',
-	'vector embeddings'
+	'vector/neural embeddings'
 ]
 
 [project.urls]
 Homepage = "https://pypi.org/project/shira_audio/"
-Repository = "https://github.com/kelechi-c/shira"
+Repository = "https://github.com/kelechi-c/shira_audio"
 
 [tool.setuptools.packages.find]
 where =["."]
@@ -44,3 +45,7 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["shira"]
+
+[project.scripts]
+shira_text = "shira.cli:text_search"
+check_files = 'shira.cli:check_files'
