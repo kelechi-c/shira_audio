@@ -2,7 +2,8 @@
 
 ### A simple audio search/retrieval library. (wip)
 
-This is the audio version of [ripple](https://github.com/kelechi-c/ripple_net).
+This is the audio version of [**ripple**](https://github.com/kelechi-c/ripple_net).
+**Search** through **audio files/data** with **text queries** or **audio samples**.\
 It's meant to be an **_neural_ encoded** version of [Shazam](https://www.shazam.com/), but might just be for small scale/local usage.
 
 #### Methodology
@@ -17,6 +18,28 @@ specifically LAION's **[laion/larger_clap_music_and_speech](https://huggingface.
 
 <!-- #### general info
 #### usage -->
+#### usage
+- Install the library
+
+```bash
+pip install shira-audio
+```
+- **For text-based search**
+```python
+from shira import AudioSearch, AudioEmbedding
+
+embedder = AudioEmbedding(data_path='.') # init embedder class
+audio_data_embeds = embedder.index_files() # create embeddings and index audio files
+
+neural_search = AudioSearch() # init semantic search class
+
+text_query = 'classical music' # text description for search
+
+# get k similar audio w/probability score pairs 
+matching_samples, scores = neural_search.text_search(text_query, audio_data_embeds, k_count=5)
+
+matching_samples[0]['audio']['path'] # get file path for the top sample
+```
 
 #### Acknowldgements
 - [**CLAP**: Learning Audio Concepts From Natural Language Supervision](https://arxiv.org/abs/2206.04769)

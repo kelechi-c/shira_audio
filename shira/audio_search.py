@@ -2,13 +2,13 @@ import os
 import numpy as np
 from typing import Literal, Union
 from .utils import audiofile_crawler, latency, read_audio
-from datasets import load_dataset, Dataset
+from datasets import load_dataset, Dataset, DatasetDict
 from transformers import ClapModel, ClapProcessor
 
 # local path variables
-LOCAL_MODEL_PATH = '~/clap_model' 
+LOCAL_MODEL_PATH = '~/clap_model'
 LOCAL_PROCESSOR_PATH = '~/clap_processor'
-LOCAL_DATA_EMBED = 'audio_embeddings'
+LOCAL_DATA_EMBED = '~/audio_embeddings'
 
 
 class AudioSearch:
@@ -37,7 +37,7 @@ class AudioSearch:
     def text_search(
         self, 
         text_query: str, 
-        embedded_data: Dataset,
+        embedded_data: Union[Dataset, DatasetDict],
         k_count: int = 4, 
         device: str = 'cpu'
     ):
@@ -50,7 +50,7 @@ class AudioSearch:
         text_embed = self.clap_model.get_text_features(encoded_text)[0] # type: ignore
         text_embed = text_embed.detach().cpu().numpy()
 
-        scores, retrieved_audio = embedded_data.get_nearest_examples("audio_embeddings", text_embed, k=k_count)
+        scores, retrieved_audio = embedded_data.get_nearest_examples("audio_embeddings", text_embed, k=k_count) # type: ignore
 
         return retrieved_audio, scores
    
