@@ -2,13 +2,13 @@ import os
 import numpy as np
 from typing import Literal, Union
 from .utils import audiofile_crawler, latency, read_audio
-from datasets import load_dataset, Dataset, DatasetDict
+from datasets import load_dataset, Dataset, DatasetDict, Audio
 from transformers import ClapModel, ClapProcessor
 
 # local path variables
-LOCAL_MODEL_PATH = '~/clap_model'
-LOCAL_PROCESSOR_PATH = '~/clap_processor'
-LOCAL_DATA_EMBED = '~/audio_embeddings'
+LOCAL_MODEL_PATH = 'clap_model'
+LOCAL_PROCESSOR_PATH = 'clap_processor'
+LOCAL_DATA_EMBED = 'audio_embeddings'
 
 
 class AudioSearch:
@@ -55,7 +55,7 @@ class AudioSearch:
         return retrieved_audio, scores
    
     @latency 
-    def audio_search(
+    def audio_search( # basically neural and slow Shazam
         self,
         input_audio: Union[str, os.PathLike],
         embedded_data,
@@ -63,7 +63,7 @@ class AudioSearch:
         device: str = 'cpu'
     ):
         if not isinstance(input_audio, np.ndarray):  
-            input_audio = read_audio(input_audio)  # type: ignore # loads audio file from wav to ndarray
+            input_audio = read_audio(input_audio)  # type: ignore # loads audio file to ndarray
 
         audio_values = self.processor(audios=input_audio, return_tensors="pt", sampling_rate=sample_rate)["audio_features"] # type: ignore
         audio_values = audio_values.to(device) # type: ignore
@@ -106,7 +106,7 @@ class AudioEmbedding:
             self.audio_dataset = load_dataset(data_path, split='train', trust_remote_code=True)
         else:
             audiofiles, _ = audiofile_crawler(data_path) # get all audio files under the directory
-            self.audio_dataset = Dataset.from_dict({'audio': audiofiles})
+            self.audio_dataset = Dataset.from_dict({'audio': audiofiles, 'path': audiofiles}).cast_column('audio', Audio(sampling_rate=48000))
             self.audio_dataset.save_to_disk(LOCAL_DATA_EMBED)
 
     @latency
@@ -114,13 +114,13 @@ class AudioEmbedding:
         assert self.device in ["cuda", "cpu",], "Wrong device id, must either be 'cuda' or 'cpu'"
 
         # encode/embed arrays for search
-        embedded_data: Dataset = self.audio_dataset.map(self._embed_audio_batch)#, batch_size=10, batched=True) # type: ignore
+        embedded_data = self.audio_dataset.map(self.embed_audio_batch) # type: ignore
         print(f'created faiss vector embeddings for {self.data_path}')
-        embedded_data.save_to_disk(self.data_path)
+        embedded_data.save_to_disk(LOCAL_DATA_EMBED) # type: ignore
 
         return embedded_data
 
-    def _embed_audio_batch(self, batch): # encode audio and add 'embeddings' column for indexing
+    def embed_audio_batch(self, batch): # encode audio and add 'embeddings' column for indexing
         sample = batch["audio"]['array']
 
         # preprocessing/normalization with CLAP audio processor
