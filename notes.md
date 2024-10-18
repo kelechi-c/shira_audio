@@ -16,3 +16,4 @@ Anyways, I started this project on [06-10-24] (a day before my exams), let's see
 - [**13.10.24**] - briefly divert to storybook project [..oops], work on README, add methodology.
 - [**14.10.24**] - released **v0.1**, work on **moonvid** prototype.
 - [**16.10.24**] - added cli functionality, fix file crawler.
+- [**18.10.24**] - fix audio mapping function.
