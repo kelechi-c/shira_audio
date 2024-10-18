@@ -1,6 +1,6 @@
 [project]
 name = "shira_audio"
-version = "0.1.2"
+version = "0.1.22"
 description = "audio search/retrieval library"
 authors = [{ name = "Chibuzo Kelechi", email = "kelechichibuzo7@gmail.com" }]
 readme = "README.md"

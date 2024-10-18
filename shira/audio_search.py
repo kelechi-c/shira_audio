@@ -1,14 +1,15 @@
 import os
 import numpy as np
 from typing import Literal, Union
+from pathlib import Path
 from .utils import audiofile_crawler, latency, read_audio
 from datasets import load_dataset, Dataset, DatasetDict, Audio
 from transformers import ClapModel, ClapProcessor
 
 # local path variables
-LOCAL_MODEL_PATH = 'clap_model'
-LOCAL_PROCESSOR_PATH = 'clap_processor'
-LOCAL_DATA_EMBED = 'audio_embeddings'
+LOCAL_MODEL_PATH = Path.home()/'clap_model'
+LOCAL_PROCESSOR_PATH = Path.home()/'clap_processor'
+LOCAL_DATA_EMBED = Path.home()/'audio_embeddings'
 
 
 class AudioSearch:
@@ -16,9 +17,9 @@ class AudioSearch:
     def __init__(
         self,
         model_id: str = "laion/larger_clap_music_and_speech", 
-        local_model_path: str = LOCAL_MODEL_PATH,
-        local_processor_path: str = LOCAL_PROCESSOR_PATH,
-        embedding_path: str = LOCAL_DATA_EMBED,
+        local_model_path: Union[str, Path] = LOCAL_MODEL_PATH,
+        local_processor_path: Union[str, Path] = LOCAL_PROCESSOR_PATH,
+        embedding_path: Union[str, Path] = LOCAL_DATA_EMBED,
         device: str = 'cpu'
     ):
         self.model_id = model_id
@@ -86,7 +87,7 @@ class AudioEmbedding:
         embed_model_id: str = "laion/larger_clap_music_and_speech", # clap model id, use LAION checkpoint if not specified
         dataset_type: Literal['huggingface', 'local_folder'] = 'local_folder', # load from directory or remote repo
         device: Literal['cuda', 'cpu'] = 'cpu', # for GPU(faster) or CPU usage
-        audio_embed_path: str = LOCAL_DATA_EMBED
+        audio_embed_path:  Union[str, Path] = LOCAL_DATA_EMBED
     ):
         self.data_path = data_path
         self.dataset_type = dataset_type
@@ -107,7 +108,6 @@ class AudioEmbedding:
         else:
             audiofiles, _ = audiofile_crawler(data_path) # get all audio files under the directory
             self.audio_dataset = Dataset.from_dict({'audio': audiofiles, 'path': audiofiles}).cast_column('audio', Audio(sampling_rate=48000))
-            self.audio_dataset.save_to_disk(LOCAL_DATA_EMBED)
 
     @latency
     def index_files(self): # create faiss index for audio files
