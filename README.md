@@ -39,14 +39,14 @@ text_query = 'classical music' # text description for search
 # get k similar audio w/probability score pairs 
 matching_samples, scores = neural_search.text_search(text_query, audio_data_embeds, k_count=5)
 
-matching_samples[0]['audio']['path'] # get file path for the top sample
+matching_samples['path'][0], scores[0] # get file path for the top sample
 ```
 
 Or you could use it from your terminal:
 ```bash
 # -t for text query 
 # --dir for [optional] target directory 
-shira_text -t classical --dir downloads/music
+shira_text -t instrumental --dir downloads/music
 ```
 
 #### Acknowldgements
