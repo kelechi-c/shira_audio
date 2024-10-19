@@ -123,21 +123,25 @@ class AudioEmbedding:
     def embed_audio_batch(self, batch): # encode audio and add 'embeddings' column for indexing
         sample = batch["audio"]['array']
 
-        # preprocessing/normalization with CLAP audio processor
-        coded_audio = self.processor(
-            audios=sample, 
-            return_tensors="pt", 
-            sampling_rate=48000
-        )["input_features"] # type: ignore
+        try:
+            # preprocessing/normalization with CLAP audio processor
+            coded_audio = self.processor(
+                audios=sample, 
+                return_tensors="pt", 
+                sampling_rate=48000
+            )["input_features"] # type: ignore
 
-        # feature extraction and embedding projection
-        audio_embed = self.embed_model.get_audio_features(coded_audio) # type: ignore
+            # feature extraction and embedding projection
+            audio_embed = self.embed_model.get_audio_features(coded_audio) # type: ignore
 
-        batch["audio_embeddings"] = audio_embed[0]
+            batch["audio_embeddings"] = audio_embed[0]
 
-        return batch
+            return batch
 
-
+        except Exception as e:
+            print(f'error in file processing: {e}')
+            
+            
 def load_models(
     local_model_path: Union[str, os.PathLike],
     local_processor_path: Union[str, os.PathLike],
