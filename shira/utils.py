@@ -1,11 +1,10 @@
-from typing import Union
+from typing import Tuple, Union, List
 import librosa, os, time
 import numpy as np
+import soundfile as sf
 from functools import wraps
 from pathlib import Path
-
 from tqdm import tqdm
-
 
 sample_rate = 48000 # sample rate use dto train laion music_CLAP checkpoint
 max_duration = 20 # trim all loaded audio to this length for resources
@@ -25,8 +24,8 @@ def latency(func):
 
 # crawl all the local audio files and retrun a single list
 @latency
-def audiofile_crawler(directory: Union[str, Path] = Path.home()):
-    audio_extensions = (".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a")
+def audiofile_crawler(directory: Union[str, Path] = Path.home()) -> Tuple[List[str], int]:
+    audio_extensions = (".mp3", ".wav", ".flac", ".ogg")
     # audio_files = []
 
     dir_path = Path(directory)
@@ -59,3 +58,16 @@ def trimpad_audio(audio: np.ndarray) -> np.ndarray:
         audio = np.pad(audio, (0, pad_width), mode="reflect")
 
     return audio
+
+# filter corrupt files and return list of soundfile-readable files only
+def filter_files(audio_files: List) -> List[str]:
+    sane_files = []
+    
+    for file in audio_files:
+        try:
+            sf.read(file)
+            sane_files.append(file)
+        except:
+            continue
+        
+    return sane_files
