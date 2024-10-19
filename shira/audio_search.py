@@ -83,7 +83,7 @@ class AudioSearch:
 class AudioEmbedding:
     def __init__(
         self,
-        data_path: str = '~', # load from home directory if not specified
+        data_path: Union[str, Path] = Path.home(), # load from home directory if not specified
         embed_model_id: str = "laion/larger_clap_music_and_speech", # clap model id, use LAION checkpoint if not specified
         dataset_type: Literal['huggingface', 'local_folder'] = 'local_folder', # load from directory or remote repo
         device: Literal['cuda', 'cpu'] = 'cpu', # for GPU(faster) or CPU usage
@@ -104,7 +104,7 @@ class AudioEmbedding:
 
         # load dataset from remote repo of local audio files
         if dataset_type == 'huggingface':
-            self.audio_dataset = load_dataset(data_path, split='train', trust_remote_code=True)
+            self.audio_dataset = load_dataset(data_path, split='train', trust_remote_code=True) # type: ignore
         else:
             audiofiles, _ = audiofile_crawler(data_path) # get all audio files under the directory
             self.audio_dataset = Dataset.from_dict({'audio': audiofiles, 'path': audiofiles}).cast_column('audio', Audio(sampling_rate=48000))

@@ -23,8 +23,14 @@ def text_search(textquery: str, dir):
 
     # get k similar audio w/probability scores pairs
     matching_samples, scores = neural_search.text_search(textquery, audio_data_embeds, k_count=5) # type: ignore
+    top_sample = matching_samples[0]['audio']
+    
+    try:
+        top_sample = top_sample['path'] # get file path for top sample
+    except:
+        print('audio filepath not available')
+        top_sample = top_sample
 
-    top_sample = matching_samples[0]['audio']['path'] # get file path for top sample
     score = scores[0] * 100
     click.echo(f"text query {textquery}")
     click.echo("...........")
