@@ -111,15 +111,15 @@ class AudioEmbedding:
             self.audio_dataset = Dataset.from_dict({'audio': audiofiles, 'path': audiofiles})
             self.audio_dataset = self.audio_dataset.cast_column('audio', Audio(sampling_rate=22400))
 
-
     @latency
     def index_files(self) -> Union[Dataset, DatasetDict]: # create faiss index for audio files
         assert self.device in ["cuda", "cpu",], "Wrong device id, must either be 'cuda' or 'cpu'"
 
         # encode/embed arrays for search
         embedded_data = self.audio_dataset.map(self.embed_audio_batch) # type: ignore
+        embedded_data.add_faiss_index(column="audio_embeddings")  # type: ignore # Initialize FAISS index
         embedded_data.save_to_disk(str(LOCAL_DATA_EMBED)) # type: ignore
-        print(f"created faiss vector embeddings for {self.data_path} @ {self.audio_embed_path}")
+        print(f"created faiss vector embeddings/index for {self.data_path} @ {self.audio_embed_path}")
 
         return embedded_data # type: ignore
 
