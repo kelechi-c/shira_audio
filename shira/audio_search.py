@@ -118,7 +118,7 @@ class AudioEmbedding:
         # encode/embed arrays for search
         embedded_data = self.audio_dataset.map(self.embed_audio_batch) # type: ignore
         embedded_data.add_faiss_index(column="audio_embeddings")  # type: ignore # Initialize FAISS index
-        embedded_data.save_to_disk(str(LOCAL_DATA_EMBED)) # type: ignore
+        # embedded_data.save_to_disk(str(self.audio_data_embed)) # type: ignore
         print(f"created faiss vector embeddings/index for {self.data_path} @ {self.audio_embed_path}")
 
         return embedded_data # type: ignore
