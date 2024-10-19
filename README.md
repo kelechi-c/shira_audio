@@ -41,6 +41,12 @@ matching_samples, scores = neural_search.text_search(text_query, audio_data_embe
 matching_samples[0]['audio']['path'] # get file path for the top sample
 ```
 
+Or you could use it from your terminal like:
+```bash
+# -t for text query and --dir for optional target directory 
+shira_text -t classical --dir downloads/music
+```
+
 #### Acknowldgements
 - [**CLAP**: Learning Audio Concepts From Natural Language Supervision](https://arxiv.org/abs/2206.04769)
 - [**tinyCLAP**: Distilling Contrastive Language-Audio Pretrained models]() 

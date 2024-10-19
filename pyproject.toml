@@ -1,6 +1,6 @@
 [project]
 name = "shira_audio"
-version = "0.1.22"
+version = "0.1.23"
 description = "audio search/retrieval library"
 authors = [{ name = "Chibuzo Kelechi", email = "kelechichibuzo7@gmail.com" }]
 readme = "README.md"
@@ -14,8 +14,10 @@ dependencies = [
     "faiss-gpu",
     "numpy",
     "click",
-    "tqdm"
+    "tqdm",
+    "soundfile>=0.12.1"
 ]
+
 keywords = [
 	'machine learning',
 	'audio retrieval',
