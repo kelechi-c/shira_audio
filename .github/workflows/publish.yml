@@ -2,7 +2,7 @@
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
 # This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
+# They are provided by a third-party(pypi) and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
 
@@ -10,7 +10,7 @@ name: Upload Python Package
 
 on:
   release:
-    types: [published]
+    types: [published] # creates new version upload when I publish a release
 
 jobs:
   deploy:
@@ -22,7 +22,7 @@ jobs:
       url: https://pypi.org/p/shira_audio
 
     permissions:
-      # IMPORTANT: this permission is mandatory for trusted publishing
+      # IMPORTANT: this permission is mandatory for trusted publishing with pypi
       id-token: write
 
     steps:
@@ -39,6 +39,3 @@ jobs:
       run: python -m build
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@release/v1
-      # with:
-      #   user: __token__
-      #   password: ${{ secrets.PYPI_API_TOKEN }}

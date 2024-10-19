@@ -32,10 +32,11 @@ def audiofile_crawler(directory: Union[str, Path] = Path.home()) -> Tuple[List[s
     print(dir_path)
 
     # Use a generator expression to find all files with the given extensions
-    matching_files = [
-        str(file) for ext in tqdm(audio_extensions, ncols=50) for file in dir_path.rglob(f"*{ext}")
-    ]
-    print(f'found {len(matching_files)} audio files in {directory}')
+    audio_files = [str(file) for ext in tqdm(audio_extensions, ncols=50) for file in dir_path.rglob(f"*{ext}")]
+
+    matching_files = filter_files(audio_files)
+    
+    print(f"{len(matching_files)} valid files out of {len(audio_files)} files.")
 
     return matching_files, len(matching_files)
 
