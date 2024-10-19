@@ -2,7 +2,7 @@ import os
 import numpy as np
 from typing import Literal, Union
 from pathlib import Path
-from .utils import audiofile_crawler, latency, read_audio
+from .utils import audiofile_crawler, filter_files, latency, read_audio
 from datasets import load_dataset, Dataset, DatasetDict, Audio
 from transformers import ClapModel, ClapProcessor
 
@@ -13,7 +13,6 @@ LOCAL_DATA_EMBED = Path.home()/'audio_embeddings'
 
 
 class AudioSearch:
-
     def __init__(
         self,
         model_id: str = "laion/larger_clap_music_and_speech", 
@@ -93,6 +92,7 @@ class AudioEmbedding:
         self.dataset_type = dataset_type
         self.model_id = embed_model_id
         self.model_save_path = LOCAL_MODEL_PATH
+        self.processor_path = LOCAL_PROCESSOR_PATH
         self.audio_embed_path = audio_embed_path
         self.device = device
         self.audio_dataset = None
@@ -100,14 +100,16 @@ class AudioEmbedding:
         self.embed_model = None
 
         # load models for processing/retrieval
-        self.embed_model, self.processor = load_models(self.model_save_path, LOCAL_PROCESSOR_PATH, self.model_id)
+        self.embed_model, self.processor = load_models(self.model_save_path, self.processor_path, self.model_id)
 
         # load dataset from remote repo of local audio files
         if dataset_type == 'huggingface':
             self.audio_dataset = load_dataset(data_path, split='train', trust_remote_code=True) # type: ignore
         else:
-            audiofiles, _ = audiofile_crawler(data_path) # get all audio files under the directory
-            self.audio_dataset = Dataset.from_dict({'audio': audiofiles, 'path': audiofiles}).cast_column('audio', Audio(sampling_rate=48000))
+            audiofiles, file_count = audiofile_crawler(data_path) # get all audio files under the directory
+            audiofiles = filter_files(audiofiles)
+            self.audio_dataset = Dataset.from_dict({'audio': audiofiles, 'path': audiofiles})
+            self.audio_dataset = self.audio_dataset.cast_column('audio', Audio(sampling_rate=22400))
 
     @latency
     def index_files(self): # create faiss index for audio files
@@ -115,8 +117,8 @@ class AudioEmbedding:
 
         # encode/embed arrays for search
         embedded_data = self.audio_dataset.map(self.embed_audio_batch) # type: ignore
-        print(f'created faiss vector embeddings for {self.data_path}')
         embedded_data.save_to_disk(LOCAL_DATA_EMBED) # type: ignore
+        print(f"created faiss vector embeddings for {self.data_path} @ {self.audio_embed_path}")
 
         return embedded_data
 
@@ -140,8 +142,8 @@ class AudioEmbedding:
 
         except Exception as e:
             print(f'error in file processing: {e}')
-            
-            
+
+
 def load_models(
     local_model_path: Union[str, os.PathLike],
     local_processor_path: Union[str, os.PathLike],
