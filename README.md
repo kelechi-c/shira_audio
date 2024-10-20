@@ -15,7 +15,7 @@ The files are retrieved based on **cosine similarity** between embeddings.
 (it could also be adapted for **audio recommendation**).
 
 This process makes use of contrastively pretrained audio-language model, **CLAP**(like **OpenAI CLIP** for audio), 
-specifically LAION's **[laion/larger_clap_music_and_speech](https://huggingface.co/laion/larger_clap_music_and_speech)** checkpoint/model
+specifically LAION's **[laion/larger_clap_music_and_speech](https://huggingface.co/laion/larger_clap_music_and_speech)** checkpoint/model.
 
 <!-- #### general info
 #### usage -->
@@ -25,6 +25,7 @@ specifically LAION's **[laion/larger_clap_music_and_speech](https://huggingface.
 ```bash
 pip install shira-audio
 ```
+
 - **For text-based search**
 ```python
 from shira import AudioSearch, AudioEmbedding
@@ -47,6 +48,30 @@ Or you could use it from your terminal:
 # -t for text query 
 # --dir for [optional] target directory 
 shira_text -t instrumental --dir downloads/music
+```
+
+- **For audio-based search**
+```python
+from shira import AudioSearch, AudioEmbedding
+
+embedder = AudioEmbedding(data_path='downloads') # init embedder class
+audio_data_embeds = embedder.index_files() # create embeddings and index audio files
+
+neural_search = AudioSearch() # init semantic search class
+
+audiofile = 'beethoven_moonlight_sonata.mp3' # audio file for reference
+
+# get k similar audio w/probability score pairs 
+similar_samples, scores = neural_search.audio_search(audiofile, audio_data_embeds, k_count=4)
+
+similar_samples['path'][0], scores[0] # get file path for the top sample
+```
+
+Or for **terminal/cli** use:
+```bash
+# -f reference audio file path 
+# --dir for [optional] target directory 
+shira -f sprinter.mp3 --dir downloads/
 ```
 
 #### Acknowldgements

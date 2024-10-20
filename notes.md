@@ -18,3 +18,4 @@ Anyways, I started this project on [06-10-24] (a day before my exams), let's see
 - [**16.10.24**] - added cli functionality, fix file crawler.
 - [**18.10.24**] - fix audio mapping function.
 - [**19.10.24**] - add audio healhtchecks and filters, several bugs, but it worked in the end.
+- [**20.10.24**] - working version(**v0.1.27**), add audio ref cli function.
