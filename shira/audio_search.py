@@ -15,7 +15,7 @@ LOCAL_DATA_EMBED = Path.home()/'audio_embeddings'
 class AudioSearch:
     def __init__(
         self,
-        model_id: str = "laion/larger_clap_music_and_speech", 
+        model_id: str = "laion/larger_clap_music_and_speech",
         local_model_path: Union[str, Path] = LOCAL_MODEL_PATH,
         local_processor_path: Union[str, Path] = LOCAL_PROCESSOR_PATH,
         embedding_path: Union[str, Path] = LOCAL_DATA_EMBED,
@@ -32,9 +32,9 @@ class AudioSearch:
         # load models for semantic search retrieval
         self.clap_model, self.processor = load_models(local_model_path, local_processor_path, model_id)
 
-
     @latency
     def text_search(
+        # semantic searhc with text description
         self, 
         text_query: str, 
         embedded_data: Union[Dataset, DatasetDict],
@@ -50,31 +50,32 @@ class AudioSearch:
         text_embed = self.clap_model.get_text_features(encoded_text)[0] # type: ignore
         text_embed = text_embed.detach().cpu().numpy()
 
+        # get nearest samples based on faiss mebeddings
         scores, retrieved_audio = embedded_data.get_nearest_examples("audio_embeddings", text_embed, k=k_count) # type: ignore
 
         return retrieved_audio, scores
-   
+
     @latency 
-    def audio_search( # basically neural and slow Shazam
+    def audio_search(
+        # basically neural Shazam (and a bit slow)
+        # matching/similar audio models
         self,
         input_audio: Union[str, os.PathLike],
         embedded_data,
         k_count: int = 2,
-        device: str = 'cpu'
+        device: str = "cpu",
     ):
         if not isinstance(input_audio, np.ndarray):  
             input_audio = read_audio(input_audio)  # type: ignore # loads audio file to ndarray
 
         audio_values = self.processor(audios=input_audio, return_tensors="pt", sampling_rate=sample_rate)["audio_features"] # type: ignore
         audio_values = audio_values.to(device) # type: ignore
-        
+
         wav_embed = self.clap_model.get_audio_features(audio_values)[0] # type: ignore
         wav_embed = wav_embed.detach().cpu().numpy()
 
-        scores, retrieved_audio = embedded_data.get_nearest_examples(
-            "audio_embeddings", wav_embed, k=k_count
-        )
-        
+        scores, retrieved_audio = embedded_data.get_nearest_examples("audio_embeddings", wav_embed, k=k_count)
+
         return retrieved_audio, scores
 
 
@@ -107,7 +108,6 @@ class AudioEmbedding:
             self.audio_dataset = load_dataset(data_path, split='train', trust_remote_code=True) # type: ignore
         else:
             audiofiles, file_count = audiofile_crawler(data_path) # get all audio files under the directory
-            # audiofiles = filter_files(audiofiles)
             self.audio_dataset = Dataset.from_dict({'audio': audiofiles, 'path': audiofiles})
             self.audio_dataset = self.audio_dataset.cast_column('audio', Audio(sampling_rate=22400))
 
@@ -118,7 +118,7 @@ class AudioEmbedding:
         # encode/embed arrays for search
         embedded_data = self.audio_dataset.map(self.embed_audio_batch) # type: ignore
         embedded_data.add_faiss_index(column="audio_embeddings")  # type: ignore # Initialize FAISS index
-        # embedded_data.save_to_disk(str(self.audio_data_embed)) # type: ignore
+        # embedded_data.save_to_disk(str(self.audio_data_embed))
         print(f"created faiss vector embeddings/index for {self.data_path} @ {self.audio_embed_path}")
 
         return embedded_data # type: ignore

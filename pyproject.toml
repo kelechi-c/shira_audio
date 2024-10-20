@@ -1,6 +1,6 @@
 [project]
 name = "shira_audio"
-version = "0.1.27"
+version = "0.1.28"
 description = "audio search/retrieval library"
 authors = [{ name = "Chibuzo Kelechi", email = "kelechichibuzo7@gmail.com" }]
 readme = "README.md"
@@ -51,3 +51,4 @@ packages = ["shira"]
 [project.scripts]
 shira_text = "shira.cli:text_search"
 check_files = 'shira.cli:check_files'
+shira = 'shira.cli:audio_search'
