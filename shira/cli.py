@@ -31,11 +31,11 @@ def text_search(textquery: str, dir):
         print('audio filepath not available')
         top_sample = top_samples['audio']
 
-    score = scores[0]
     click.echo(f"text query {textquery}")
     click.echo("...........")
-    click.echo(f"search result #1 {top_sample}, p = {score}")
-
+    click.echo(f"search results =>")
+    for idx, (res, score) in enumerate((top_samples, scores)):
+        click.echo(f"{idx}...{res}, p = {score}")
 
 
 # cli function for audio reference search

@@ -76,6 +76,6 @@ shira -f sprinter.mp3 --dir downloads/
 
 #### Acknowldgements
 - [**CLAP**: Learning Audio Concepts From Natural Language Supervision](https://arxiv.org/abs/2206.04769)
-- [**tinyCLAP**: Distilling Contrastive Language-Audio Pretrained models]() 
+<!-- - [**tinyCLAP**: Distilling Contrastive Language-Audio Pretrained models]()  -->
 - [Large-scale **contrastive language-audio pretraining** with feature fusion and keyword-to-caption augmentation](https://arxiv.org/abs/2211.06687)
 - [**laion/larger_clap_music_and_speech**](https://huggingface.co/laion/larger_clap_music_and_speech) model by LAION.
