@@ -2,21 +2,21 @@
 
 **Hello there, it's Tensor**
 
-In this article, I will give a walkthrough on how shira works, how I built the library/system, code samples, intuition, etc.
+In this article, I will give a walkthrough on how **shira** works, how I built the library/system, code samples, intuition, etc.
   
 <br>
 
 ![](/assets/shira-framework.png)
 
 ### Overview
-First off, I have always admired [**Shazam**](https://www.shazam.com/), so I decided to reproduce 
-the workings with neural networks. 
+First off, I have always admired [**Shazam**](https://www.shazam.com/), 
+so I decided to **reproduce the workings with neural networks**. 
 So in the process, I built this library for **audio retrieval**, semantic search and possibly **recommendation**, which I named **shira**. The code is open-sourced at [**https://github.com/kelechi-c/shira_audio**](https://github.com/kelechi-c/shira_audio).
 
 ### So how does shira even work?
-**shira** uses a pretrained **CLAP** model, specifically LAION's **[laion/larger_clap_music_and_speech](https://huggingface.co/laion/larger_clap_music_and_speech)**. The local audio files/dataset is indexed and embeddings are generated (with CLAP's audio encoder), 
+**shira** uses a pretrained **CLAP** model, specifically LAION's **[laion/larger_clap_music_and_speech](https://huggingface.co/laion/larger_clap_music_and_speech)**. The local audio files/dataset is indexed and embeddings are generated (with CLAP's **audio encoder**), 
 then a **FAISS** vector embedding index is created.\
-The files are retrieved based on **similarity** between embeddings.
+The files are retrieved based on **cosine similarity** between **embeddings**.
 
 Since in **contrastive text-audio pretraining**, 
 the text and audio vectors are projected to a **joint embedding space**, this enables cross-modal retrieval,
@@ -71,7 +71,7 @@ def filter_files(audio_files: List) -> List[str]:
             valid_files.append(file)
         except:
             continue
-    return sane_files
+    return valid_files
 
 # crawl all the local audio files and retuun a single list of files, 
 def audiofile_crawler(directory: str = Path.home()):
@@ -119,7 +119,7 @@ audio_dataset = Dataset.from_dict({'audio': audiofiles, 'path': audiofiles}) # c
 audio_dataset = self.audio_dataset.cast_column('audio', Audio(sampling_rate=22400)) # apply an audio transform on the audio column
 ```
 
-Load the required models(**LAION AI's CLAP**):
+Load the required pretrained models(**LAION AI's CLAP**):
 
 ```python
 clap_model = ClapModel.from_pretrained(model_id).to('cuda') # or 'cpu'
@@ -151,7 +151,7 @@ embedded_data.add_faiss_index(column="audio_embeddings") # create FAISS index fo
 
 The functions to be defined now are for **text**, and **audio** based search.
 
-For audo search with a reference file (works a bit like Shazam)
+For **audio search** with a **reference file **(works a bit like Shazam)
 
 ```python
 def audio_search(input_audio, embedded_data, k_count: int=2, device: torch.device=device):
@@ -264,13 +264,21 @@ latency => index_files: 165.1681 seconds
 loaded retrieval model from local storage @ /root/clap_model
 latency => audio_search: 2.6201 seconds
 
-reference file /kaggle/input/musicsamples/audiofiles/Eminem-Without-Me.mp3
+reference file - /kaggle/input/musicsamples/audiofiles/Eminem-Without-Me.mp3
 ...........
 search results =>
 0.../kaggle/input/samplemusic/audiofiles/Eminem-Without-Me.mp3, p = 1.110220193
 1.../kaggle/input/musicsamples/audiofiles/IntroducingiPhone15WOWApple.mp3, p = 1.133802413
 2.../kaggle/input/musicsamples/audiofiles/Elevate.mp3, p = 1.1349503993
 ```
+
+### conclusion
+Well, while I didn't **reproduce the exact workings of Shazam**(or anything of that scale),
+I did create something **similar**, which I hope will be useful to **developers** out there dealing with audio datasets, 
+and maybe even companies that deal with **audio search/retrieval/recommendation**. 
+More updates will be made to the library. Moving on to the next project :)
+
+**Thanks for reading!**
 
 ### Acknowledgements
 - **LAION** AI for their [**research**](https://arxiv.org/abs/2211.06687) and open **model**: [**laion/larger_clap_music_and_speech**](https://huggingface.co/laion/larger_clap_music_and_speech) model by LAION.
