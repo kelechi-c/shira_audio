@@ -220,34 +220,56 @@ Check the github readme for more snippet examples :)
 
 ### sample runs
 
-<!-- - CLI run w/audio
-![](/assets/shira_sample-2.png)
-
-- Sample output with text query
-![](/assets/shira-sample1.png) -->
-
 - CLI text search
 ```bash
-shira_text -t rap -d /kaggle/input/musicsamples
+shira_text -t classical -d /kaggle/input/musicsamples
+```
+ . . . . Output:
+```python
+/kaggle/input/samplemusic/audiofiles
+100%|██████████████| 4/4 [00:00<00:00, 590.93it/s]
+7 valid files out of 8 files.
+latency => audiofile_crawler: 3.7593 seconds
+Map: 100%|█████████████████████████████████| 7/7 [01:10<00:00, 10.14s/ examples]
+100%|███████████████████████████████████████████| 1/1 [00:00<00:00, 1759.36it/s]
+created faiss vector embeddings/index for /kaggle/input/samplemusic/audiofiles @ /root/audio_embeddings
+latency => index_files: 76.5728 seconds
+loaded retrieval model from local storage @ /root/clap_model
+latency => text_search: 0.2655 seconds
+
+text query - classical
+...........
+search results =>
+0.../kaggle/input/samplemusic/audiofiles/AllFallsDown.mp3, p = 1.1539673805236816
+1.../kaggle/input/samplemusic/audiofiles/Lindsey_Stirling_-_Carol_of_the_Bells_CeeNaija.com_.mp3, p = 1.5261328220367432
+2.../kaggle/input/samplemusic/audiofiles/Flight-of-the-bumblebee-piano.mp3, p = 1.5823228359222412
+3.../kaggle/input/samplemusic/audiofiles/Alan-Walker-Chameleon-download-wowplus.mp3, p = 1.6685649156570435
+```
+
+
+- Audio matching (terminal)
+```bash
+shira -f /kaggle/input/musicsamples/audiofiles/Eminem-Without-Me.mp3 -d /kaggle/input
 ```
 
 ```python
+/kaggle/input
+100%|██████████████| 4/4 [00:00<00:00, 159.84it/s]
+16 valid files out of 18 files.
+latency => audiofile_crawler: 7.9091 seconds
+Map: 100%|███████████████████████████████| 16/16 [02:40<00:00, 10.02s/ examples]
+100%|███████████████████████████████████████████| 1/1 [00:00<00:00, 1605.17it/s]
+created faiss vector embeddings/index for /kaggle/input @ /root/audio_embeddings
+latency => index_files: 165.1681 seconds
 loaded retrieval model from local storage @ /root/clap_model
-/kaggle/input/musicsamples
-100%|██████████████| 4/4 [00:00<00:00, 429.17it/s]
-8 valid files out of 9 files.
-latency => audiofile_crawler: 3.4739 seconds
-Map: 100%|█████████████████████████████████| 8/8 [01:10<00:00,  8.85s/ examples]
-100%|███████████████████████████████████████████| 1/1 [00:00<00:00, 2218.03it/s]
-created faiss vector embeddings/index for /kaggle/input/musicsamples @ /root/audio_embeddings
-latency => index_files: 75.3190 seconds
-loaded retrieval model from local storage @ /root/clap_model
-latency => text_search: 0.3462 seconds
-text query- rap
+latency => audio_search: 2.6201 seconds
+
+reference file /kaggle/input/musicsamples/audiofiles/Eminem-Without-Me.mp3
 ...........
-search result #1
- /kaggle/input/musicsamples/audiofiles/IntroducingiPhone15WOWApple.mp3, 
-p = 1.1201541423797607
+search results =>
+0.../kaggle/input/samplemusic/audiofiles/Eminem-Without-Me.mp3, p = 1.110220193
+1.../kaggle/input/musicsamples/audiofiles/IntroducingiPhone15WOWApple.mp3, p = 1.133802413
+2.../kaggle/input/musicsamples/audiofiles/Elevate.mp3, p = 1.1349503993
 ```
 
 ### Acknowledgements
