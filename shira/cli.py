@@ -34,7 +34,7 @@ def text_search(textquery: str, dir):
     click.echo(f"text query {textquery}")
     click.echo("...........")
     click.echo(f"search results =>")
-    for idx, (res, score) in enumerate((top_samples, scores)):
+    for idx, (res, score) in enumerate(zip(top_samples, scores)):
         click.echo(f"{idx}...{res}, p = {score}")
 
 
@@ -62,5 +62,5 @@ def audio_search(file: str, dir):
     click.echo(f"reference file {file}")
     click.echo("...........")
     click.echo(f"search results =>")
-    for idx, (res, score) in enumerate((top_samples, scores)):
+    for idx, (res, score) in enumerate(zip(top_samples, scores)):
         click.echo(f"{idx}...{res}, p = {score}")

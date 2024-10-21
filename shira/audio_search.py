@@ -68,7 +68,7 @@ class AudioSearch:
         if not isinstance(input_audio, np.ndarray):  
             input_audio = read_audio(input_audio)  # type: ignore # loads audio file to ndarray
 
-        audio_values = self.processor(audios=input_audio, return_tensors="pt", sampling_rate=48000)["audio_features"] # type: ignore
+        audio_values = self.processor(audios=input_audio, return_tensors="pt", sampling_rate=48000)["input_features"] # type: ignore
         audio_values = audio_values.to(device) # type: ignore
 
         wav_embed = self.clap_model.get_audio_features(audio_values)[0] # type: ignore
