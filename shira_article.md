@@ -1,6 +1,5 @@
 # shira: neural audio search/recommendation with CLAP
 
-**Hello there, it's Tensor**
 
 In this article, I will give a walkthrough on how **shira** works, how I built the library/system, code samples, intuition, etc.
   
@@ -199,7 +198,9 @@ similar_samples, t_scores = text_search(text_q, embedded_data)
 similar_samples['path'][0] # top sample's file path
 ```
 
-Using the library(shira) directly, it is as simple as:
+**However..**
+
+Using the library(**shira**) directly, it is as simple as:
 
 ```python
 from shira import AudioSearch, AudioEmbedding
@@ -218,7 +219,7 @@ similar_samples['path'][0], scores[0]
 ```
 Check the github readme for more snippet examples :)
 
-### sample runs
+### Sample runs
 
 - CLI text search
 ```bash
@@ -272,7 +273,11 @@ search results =>
 2.../kaggle/input/musicsamples/audiofiles/Elevate.mp3, p = 1.1349503993
 ```
 
-### conclusion
+- Demo video(searching for rap song, carol, presentations among my files)
+
+<video src="assets/shira2.mp4" width="640" height="420" controls></video>
+
+### Conclusion
 Well, while I didn't **reproduce the exact workings of Shazam**(or anything of that scale),
 I did create something **similar**, which I hope will be useful to **developers** out there dealing with audio datasets, 
 and maybe even companies that deal with **audio search/retrieval/recommendation**. 
